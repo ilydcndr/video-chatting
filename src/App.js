@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { connect } from "react-redux";
 import { ownerUser, addUser, removeUser } from './redux/actions/actionCreator';
 
-function App() {
+function App(props) {
   const participantRef = databaseRef.child('participants')
   const [UserName, setUserName] = useState(null);
 
@@ -17,25 +17,49 @@ function App() {
   useEffect(() => {
     connectedInfo.on('value', (snap) => {
       if(snap.val()) {
-        const defaultPreferences = {
+        const defaultSettings = {
           audio:false,
           video:false,
           screen:false,
         };
+
         const userRef = participantRef.push({
           UserName,
-          preference: defaultPreferences,
+          settings: defaultSettings,
+        });
+
+        props.ownerUser({
+          [userRef.key]: {
+            UserName,
+            ...defaultSettings,
+          },
         });
 
         userRef.onDisconnect().remove();
       }
-    })
-  }, [])
+    });
+
+    participantRef.on("added", (snap) => {
+      const {UserName, settings} = snap.val()
+      props.addUser({
+        [snap.key]: {
+          UserName,
+          ...settings,
+        },
+      });
+    });
+
+    participantRef.on("removed", (snap) => {
+      props.removeUser(snap.key);
+    });
+  }, []);
 
 
   return (
     <>
       <Login handleClick={handleClick} />
+      <div>{props.user}</div>
+      <div>{props.participants}</div>
     </>
   );
 }
