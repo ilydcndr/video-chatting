@@ -23,6 +23,4 @@ if (roomId) {
   window.history.replaceState(null, "video-chat", "?id=" + databaseRef.key);
 }
 
-export const userName = prompt("What's your name?");
-
 export default databaseRef;

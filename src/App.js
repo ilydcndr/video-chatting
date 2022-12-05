@@ -1,6 +1,6 @@
 import './App.css';
 import databaseRef, { userName, fr } from './Backend/firebase';
-import { Login } from './Components/Login';
+import { Login } from './Components/Login/Login';
 import { useEffect, useState } from 'react';
 import { connect } from "react-redux";
 import { ownerUser, addUser, removeUser, setMediaStream } from './redux/actions/actionCreator';

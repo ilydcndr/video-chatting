@@ -23,7 +23,7 @@ export const reducer = (state = initialState, action) => {
       const participantId = Object.keys(payload.willAddUser)[0];
 
       if (currentUserId === participantId) {
-        payload.participantId(participantId).currentUser = true;
+        payload.participantId(participantId).initialUser = true;
       }
 
       let participants = {...state.participants, ...payload.willAddUser};
