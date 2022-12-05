@@ -1,28 +1,37 @@
-import { JOIN_USER, LEAVE_USER, OWNER_USER } from "./actionTypes";
+import { ADD_USER, REMOVE_USER, SET_OWNER_USER, SET_MEDIA_STREAM } from "./actionTypes";
 
-export const ownerUser = ( initialUser ) => {
+export const ownerUser = ( user ) => {
   return {
-    type: OWNER_USER,
+    type: SET_OWNER_USER,
     payload: {
-      initialUser,
+      initialUser: user,
     }
   }
 };
 
-export const addUser = ( joinedUser ) => {
+export const setMediaStream = ( media ) => {
   return {
-    type: JOIN_USER,
+    type: SET_MEDIA_STREAM,
     payload: {
-      joinedUser,
+      Stream: media,
     }
   }
 };
 
-export const removeUser = ( leftUser ) => {
+export const addUser = ( user ) => {
   return {
-    type: LEAVE_USER,
+    type: ADD_USER,
     payload: {
-      leftUser,
+      willAddUser: user,
+    }
+  }
+};
+
+export const removeUser = ( user ) => {
+  return {
+    type: REMOVE_USER,
+    payload: {
+      willRemoveUser: user,
     }
   }
 };

@@ -8,7 +8,7 @@ const firebaseconfig = {
 
 firebase.initializeApp(firebaseconfig);
 
-export let connectedInfo = firebase.database().ref(".info/connected");
+export const fr = firebase;
 
 let databaseRef = firebase.database().ref();
 
@@ -22,5 +22,7 @@ if (roomId) {
   databaseRef = databaseRef.push();
   window.history.replaceState(null, "video-chat", "?id=" + databaseRef.key);
 }
+
+export const userName = prompt("What's your name?");
 
 export default databaseRef;

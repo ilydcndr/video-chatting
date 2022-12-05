@@ -1,21 +1,30 @@
 import './App.css';
-import connectedInfo from './Backend/firebase';
-import databaseRef from './Backend/firebase';
+import databaseRef, { userName, fr } from './Backend/firebase';
 import { Login } from './Components/Login';
 import { useEffect, useState } from 'react';
 import { connect } from "react-redux";
-import { ownerUser, addUser, removeUser } from './redux/actions/actionCreator';
+import { ownerUser, addUser, removeUser, setMediaStream } from './redux/actions/actionCreator';
+import { MeetScreen } from './Components/MeetScreen/MeetScreen';
 
 function App(props) {
-  const participantRef = databaseRef.child('participants')
-  const [UserName, setUserName] = useState(null);
 
-  const handleClick = (name) => {
-    setUserName(name);
-  }
-  
+  const connectInfoRef = fr.database().ref(".info/connected");
+  const colleague = databaseRef.child("participants");
+
+  const ownerUserStream = async () => {
+    const ownerUserStream = await navigator.mediaDevices.getUserMedia({
+     audio: false,
+     video: false,
+   });
+
+   return ownerUserStream
+ };
+
   useEffect(() => {
-    connectedInfo.on('value', (snap) => {
+    const stream = ownerUserStream();
+    props.setMediaStream(stream);
+
+    connectInfoRef.on('value', (snap) => {
       if(snap.val()) {
         const defaultSettings = {
           audio:false,
@@ -23,43 +32,46 @@ function App(props) {
           screen:false,
         };
 
-        const userRef = participantRef.push({
-          UserName,
+        const userData = colleague.push({
+          userName,
           settings: defaultSettings,
         });
 
         props.ownerUser({
-          [userRef.key]: {
-            UserName,
+          [userData.key]: {
+            userName,
             ...defaultSettings,
           },
         });
 
-        userRef.onDisconnect().remove();
+        userData.onDisconnect().remove();
       }
-    });
-
-    participantRef.on("added", (snap) => {
-      const {UserName, settings} = snap.val()
-      props.addUser({
-        [snap.key]: {
-          UserName,
-          ...settings,
-        },
-      });
-    });
-
-    participantRef.on("removed", (snap) => {
-      props.removeUser(snap.key);
     });
   }, []);
 
+  useEffect(() => {
+    if(props.user) {
+      colleague.on("added", (snap) => {
+        const {userName, settings} = snap.val()
+        props.addUser({
+          [snap.key]: {
+            userName,
+            ...settings,
+          },
+        });
+      });
+  
+      colleague.on("removed", (snap) => {
+        props.removeUser(snap.key);
+      });
+
+    }
+  }, [props.user])
+  
 
   return (
-    <>
-      <Login handleClick={handleClick} />
-      <div>{props.user}</div>
-      <div>{props.participants}</div>
+    <>    
+      <MeetScreen />
     </>
   );
 }
@@ -73,9 +85,10 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    ownerUser: (initialUser) => dispatch(ownerUser(initialUser)),
-    joinUser: (joinedUser) => dispatch(addUser(joinedUser)),
-    leftUser: (leftUser) => dispatch(removeUser(leftUser))
+    setMediaStream: (media) => dispatch(setMediaStream(media)),
+    ownerUser: (user) => dispatch(ownerUser(user)),
+    addUser: (user) => dispatch(addUser(user)),
+    removeUser: (user) => dispatch(removeUser(user))
   }
 }
 
