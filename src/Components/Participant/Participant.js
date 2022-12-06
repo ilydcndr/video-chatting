@@ -3,7 +3,7 @@ import './Participant.css'
 import { Card } from '../Card/Card';
 import { useSelector } from 'react-redux';
 
-export const Participants = ({ currentparticipant }) => {
+export const Participant = ({ currentparticipant }) => {
   const videoRef = useRef(null);
   const remoteStream = new MediaStream();
   const userStream = useSelector((state) => state.mediaStream);

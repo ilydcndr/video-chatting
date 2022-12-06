@@ -1,6 +1,6 @@
 import React from 'react';
-import Participant from '../Participant/Participant';
-import "./AllParticipant.css";
+import { Participant } from '../Participant/Participant';
+import "./AllParticipants.css";
 import { useSelector } from 'react-redux';
 
 export const AllParticipants = () => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import AllParticipants from '../AllParticipants/AllParticipants';
+import { AllParticipants } from '../AllParticipants/AllParticipants';
 import { Settings } from '../Settings/Settings';
 import "./MeetScreen.css";
 
