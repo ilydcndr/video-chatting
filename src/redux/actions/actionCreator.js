@@ -13,7 +13,7 @@ export const setMediaStream = ( media ) => {
   return {
     type: SET_MEDIA_STREAM,
     payload: {
-      Stream: media,
+      stream: media,
     }
   }
 };

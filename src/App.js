@@ -11,17 +11,17 @@ function App(props) {
   const connectInfoRef = fr.database().ref(".info/connected");
   const colleague = databaseRef.child("participants");
 
-  const ownerUserStream = async () => {
-    const ownerUserStream = await navigator.mediaDevices.getUserMedia({
+  const initialUserStream = async () => {
+    const initialUserStream = await navigator.mediaDevices.getUserMedia({
      audio: false,
      video: false,
    });
 
-   return ownerUserStream
+   return initialUserStream
  };
 
   useEffect(() => {
-    const stream = ownerUserStream();
+    const stream = initialUserStream();
     props.setMediaStream(stream);
 
     connectInfoRef.on('value', (snap) => {
