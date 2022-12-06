@@ -12,6 +12,8 @@ export const fr = firebase;
 
 let databaseRef = firebase.database().ref();
 
+export const userName = prompt("What's your name?");
+
 const urlParams = new URLSearchParams(window.location.search);
 
 const roomId = urlParams.get("id");

@@ -27,7 +27,7 @@ export const offer = async (peerConnection, createdId, receiverId) => {
 export const activateListeners = async (userId) => {
   const currentUserRef = participantRef.child(userId);
 
-  currentUserRef.child("offer").on("added", async (snapshot) => {
+  currentUserRef.child("offer").on("child_added", async (snapshot) => {
     const data = snapshot.val();
     if(data?.offerPayload) {
       const createrId = data?.offerPayload.userId;
@@ -38,7 +38,7 @@ export const activateListeners = async (userId) => {
     }
   });
 
-  currentUserRef.child("offerCandidates").on("added", async (snapshot) => {
+  currentUserRef.child("offerCandidates").on("child_added", async (snapshot) => {
     const data = snapshot.val();
     if(data?.userId) {
       const peerConncetion = store.getState().participants[data?.userId].peerConnection;
@@ -47,7 +47,7 @@ export const activateListeners = async (userId) => {
     }
   });
 
-  currentUserRef.child("answer").on("added", async (snapshot) => {
+  currentUserRef.child("answer").on("child_added", async (snapshot) => {
     const data = snapshot.val();
     if(data?.answer) {
       const answeredId = data?.answer.userId;
@@ -56,7 +56,7 @@ export const activateListeners = async (userId) => {
     }
   });
 
-  currentUserRef.child("answerCandidates").on("added", async (snapshot) => {
+  currentUserRef.child("answerCandidates").on("child_added", async (snapshot) => {
     const data = snapshot.val();
     if(data?.userId) {
       const peerConncetion = store.getState().participants[data?.userId].peerConnection;

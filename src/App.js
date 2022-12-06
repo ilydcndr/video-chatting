@@ -1,95 +1,105 @@
 import './App.css';
 import databaseRef, { userName, fr } from './Backend/firebase';
 import { Login } from './Components/Login/Login';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { connect } from "react-redux";
-import { ownerUser, addUser, removeUser, setMediaStream } from './redux/actions/actionCreator';
-import { MeetScreen } from './Components/MeetScreen/MeetScreen';
+import { ownerUser, addUser, removeUser, setMediaStream, updateParticipant } from './redux/actions/actionCreator';
+import MeetScreen from './Components/MeetScreen/MeetScreen';
 
 function App(props) {
-
-  const connectInfoRef = fr.database().ref(".info/connected");
-  const colleague = databaseRef.child("participants");
-
-  const initialUserStream = async () => {
-    const initialUserStream = await navigator.mediaDevices.getUserMedia({
-     audio: false,
-     video: false,
-   });
-
-   return initialUserStream
- };
-
-  useEffect(() => {
-    const stream = initialUserStream();
-    props.setMediaStream(stream);
-
-    connectInfoRef.on('value', (snap) => {
-      if(snap.val()) {
-        const defaultSettings = {
-          audio:false,
-          video:false,
-          screen:false,
-        };
-
-        const userData = colleague.push({
-          userName,
-          settings: defaultSettings,
-        });
-
-        props.ownerUser({
-          [userData.key]: {
-            userName,
-            ...defaultSettings,
-          },
-        });
-
-        userData.onDisconnect().remove();
-      }
+  const getUserStream = async () => {
+    const localStream = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: true,
     });
-  }, []);
 
-  useEffect(() => {
-    if(props.user) {
-      colleague.on("added", (snap) => {
-        const {userName, settings} = snap.val()
-        props.addUser({
-          [snap.key]: {
-            userName,
-            ...settings,
-          },
-        });
-      });
+    return localStream;
+  };
   
-      colleague.on("removed", (snap) => {
-        props.removeUser(snap.key);
+  useEffect(() => {
+
+    async function fetchData() {
+      const stream = await getUserStream();
+      stream.getVideoTracks()[0].enabled = false;
+      props.setMediaStream(stream);
+
+      connectedRef.on("value", (snap) => {
+        if (snap.val()) {
+          const defaultPreference = {
+            audio: true,
+            video: false,
+            screen: false,
+          };
+          const userStatusRef = participantRef.push({
+            userName,
+            preferences: defaultPreference,
+          });
+          props.ownerUser({
+            [userStatusRef.key]: { name: userName, ...defaultPreference },
+          });
+          userStatusRef.onDisconnect().remove();
+        }
       });
 
     }
-  }, [props.user])
-  
+    fetchData();    
+  }, []);
+
+  const connectedRef = fr.database().ref(".info/connected");
+  const participantRef = databaseRef.child("participants");
+
+  const isUserSet = !!props.user;
+  const isStreamSet = !!props.stream;
+
+  useEffect(() => {
+    if (isStreamSet && isUserSet) {
+      participantRef.on("child_added", (snap) => {
+        const participantRef = participantRef
+          .child(snap.key)
+          .child("preferences");
+          participantRef.on("child_changed", (preferenceSnap) => {
+            props.updateParticipant({
+              [snap.key]: {
+                [preferenceSnap.key]: preferenceSnap.val(),
+              },
+            });
+          });
+        const { userName: name, preferences = {} } = snap.val();
+        props.addParticipant({
+          [snap.key]: {
+            name,
+            ...preferences,
+          },
+        });
+      });
+      participantRef.on("child_removed", (snap) => {
+        props.removeUser(snap.key);
+      });
+    }
+  }, [isStreamSet, isUserSet]);
 
   return (
-    <>    
+    <div className="App">
       <MeetScreen />
-    </>
+    </div>
   );
 }
 
 const mapStateToProps = (state) => {
   return {
+    stream: state.mainStream,
     user: state.currentUser,
-    participants: state.participants
-  }
-}
+  };
+};
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setMediaStream: (media) => dispatch(setMediaStream(media)),
-    ownerUser: (user) => dispatch(ownerUser(user)),
+    setMediaStream: (stream) => dispatch(setMediaStream(stream)),
     addUser: (user) => dispatch(addUser(user)),
-    removeUser: (user) => dispatch(removeUser(user))
-  }
-}
+    ownerUser: (user) => dispatch(ownerUser(user)),
+    removeUser: (user) => dispatch(removeUser(user)),
+    updateParticipant: (user) => dispatch(updateParticipant(user)),
+  };
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

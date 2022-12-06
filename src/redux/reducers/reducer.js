@@ -1,5 +1,5 @@
-import { activateListeners } from "../../Backend/peer";
-import { ADD_USER, REMOVE_USER, SET_OWNER_USER, SET_MEDIA_STREAM } from "./actionTypes";
+import { activateListeners, offer } from "../../Backend/peer";
+import { ADD_USER, REMOVE_USER, SET_OWNER_USER, SET_MEDIA_STREAM } from "../actions/actionTypes";
 
 let initialState = {
   currentUser: null,
@@ -23,14 +23,14 @@ const servers = {
   iceCandidatePoolSize: 10,
 };
 
-export const reducer = (state = initialState, action) => {
+export const userReducer = (state = initialState, action) => {
   switch(action.type) {
 
     case SET_OWNER_USER: {
       let { payload } = action;
       let participants = { ...state.participants };
       state = {...state, currentUser: { ...payload.initialUser }, participants}
-      activateListeners(Object.keys(payload.currentUser)[0]);
+      activateListeners(Object.keys(payload.initialUser)[0]);
       return state;
     }
 
@@ -76,7 +76,7 @@ export const reducer = (state = initialState, action) => {
 };
 
 const onConnectEachOther = (currentUser, newUser, videoStream ) => {
-  const peerConnection = new RTCPeerConnection(stunServers);
+  const peerConnection = new RTCPeerConnection(servers);
   videoStream.getTracks().forEach((track) => {
     peerConnection.addTrack(track, videoStream);
   });

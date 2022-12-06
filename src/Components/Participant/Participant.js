@@ -1,41 +1,49 @@
-import React, { useRef, useEffect } from 'react';
-import './Participant.css'
-import { Card } from '../Card/Card';
-import { useSelector } from 'react-redux';
+import React from "react";
+import { faMicrophoneSlash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import "./Participant.scss";
 
-export const Participant = ({ currentparticipant }) => {
-  const videoRef = useRef(null);
-  const remoteStream = new MediaStream();
-  const userStream = useSelector((state) => state.mediaStream);
-
-  useEffect(() => {
-    if ( currentparticipant.peerConnection ) {
-      currentparticipant.peerConnection.ontrack = (e) => {
-        e.streams[0].getTracks.forEach(track => {
-          remoteStream.addTrack(track);
-        });
-
-        videoRef.current.srcObject = remoteStream;
-      };
-    }
-  }, [currentparticipant.peerConnection]);
-
-  useEffect(() => {
-    if ( userStream && currentparticipant.initialUser) {
-      videoRef.current.srcObject = userStream;
-    }
-  }, [currentparticipant.initialUser, userStream]);
-  
-
+export const Participant = (props) => {
+  const {
+    curentIndex,
+    currentParticipant,
+    hideVideo,
+    videoRef,
+    showAvatar,
+    currentUser,
+  } = props;
+  if (!currentParticipant) return <></>;
   return (
-    <div>
-      <Card/>
-      <video ref={videoRef} className="video" autoPlay playsInline></video>
-      <div>{currentparticipant.userName} or photo</div>
-      <div>
-        {currentparticipant.userName}
-        {currentparticipant.initialUser ? "(YOUR CARD)": ""}
+    <div className="card">
+      <div className={`participant ${hideVideo ? "hide" : ""}`}>
+        <video
+          ref={videoRef}
+          className="video"
+          id={`participantVideo${curentIndex}`}
+          autoPlay
+          playsInline
+        ></video>
+        {!currentParticipant.audio && (
+          <FontAwesomeIcon
+            className="muted"
+            icon={faMicrophoneSlash}
+            title="Muted"
+          />
+        )}
+        {showAvatar && (
+          <div
+            style={{ background: currentParticipant.avatarColor }}
+            className="avatar"
+          >
+            {currentParticipant.name[0]}
+          </div>
+        )}
+        <div className="name">
+          {currentParticipant.name}
+          {currentUser ? "(You)" : ""}
+        </div>
       </div>
     </div>
-  )
-}
+   
+  );
+};
