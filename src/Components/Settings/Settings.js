@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import "./Settings.scss";
+import "./Settings.css";
 import {
   faMicrophone,
   faVideo,
@@ -16,7 +16,7 @@ const Settings = (props) => {
     video: false,
     screen: false,
   });
-  
+
   const micClick = () => {
     setStreamState((currentState) => {
       return {

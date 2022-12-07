@@ -1,7 +1,7 @@
 import React,{ useRef, useEffect } from 'react';
 import AllParticipants from '../AllParticipants/AllParticipants';
 import  Settings  from '../Settings/Settings';
-import "./MeetScreen.scss";
+import "./MeetScreen.css";
 import { connect } from "react-redux";
 import { setMainStream, updateUser } from '../../redux/actions/actionCreator';
 

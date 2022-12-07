@@ -1,7 +1,7 @@
 import React from "react";
 import { faMicrophoneSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import "./Participant.scss";
+import "./Participant.css";
 
 export const Participant = (props) => {
   const {

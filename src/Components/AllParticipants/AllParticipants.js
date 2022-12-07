@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Participant } from '../Participant/Participant';
-import "./AllParticipants.scss";
+import "./AllParticipants.css";
 import { connect } from "react-redux";
 
 const AllParticipants = (props) => {
@@ -16,7 +16,7 @@ const AllParticipants = (props) => {
   const currentUser = props.currentUser
     ? Object.values(props.currentUser)[0]
     : null;
-    
+
 
   let gridCol =
     participantKey.length === 1 ? 1 : participantKey.length <= 4 ? 2 : 4;
