@@ -1,12 +1,37 @@
-import { ADD_USER, REMOVE_USER, SET_OWNER_USER, SET_MEDIA_STREAM, UPDATE_USER, UPDATE_PARTICIPANT, } from "./actionTypes";
+import {
+  SET_MAIN_STREAM,
+  ADD_PARTICIPANT,
+  SET_USER,
+  REMOVE_PARTICIPANT,
+  UPDATE_USER,
+  UPDATE_PARTICIPANT,
+} from "./actionTypes";
 
-export const ownerUser = ( user ) => {
+export const setMainStream = (stream) => {
   return {
-    type: SET_OWNER_USER,
+    type: SET_MAIN_STREAM,
     payload: {
-      initialUser: user,
-    }
-  }
+      mainStream: stream,
+    },
+  };
+};
+
+export const setUser = (user) => {
+  return {
+    type: SET_USER,
+    payload: {
+      currentUser: user,
+    },
+  };
+};
+
+export const addParticipant = (user) => {
+  return {
+    type: ADD_PARTICIPANT,
+    payload: {
+      newUser: user,
+    },
+  };
 };
 
 export const updateUser = (user) => {
@@ -27,29 +52,11 @@ export const updateParticipant = (user) => {
   };
 };
 
-export const setMediaStream = ( media ) => {
+export const removeParticipant = (userId) => {
   return {
-    type: SET_MEDIA_STREAM,
+    type: REMOVE_PARTICIPANT,
     payload: {
-      stream: media,
-    }
-  }
-};
-
-export const addUser = ( user ) => {
-  return {
-    type: ADD_USER,
-    payload: {
-      willAddUser: user,
-    }
-  }
-};
-
-export const removeUser = ( user ) => {
-  return {
-    type: REMOVE_USER,
-    payload: {
-      willRemoveUser: user,
-    }
-  }
+      id: userId,
+    },
+  };
 };

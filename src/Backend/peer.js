@@ -1,91 +1,7 @@
-import databaseRef from "./firebase";
 import { store } from "..";
+import firepadRef from "./firebase";
 
-const participantRef = databaseRef.child("participants");
-
-export const offer = async (peerConnection, createdId, receiverId) => {
-
-  const receiverUser = participantRef.child(receiverId);
-  const offer = await peerConnection.offer();
-  await peerConnection.setLocalDescription(offer);
-
-  peerConnection.onicecandidate = e => {
-    e.candidate && receiverUser
-      .child("offerCandidates")
-      .push({ ...e.candidate.toJson(), userId: createdId });
-  }
-
-  const offerPayload = {
-    sdp: offer.sdp,
-    type: offer.type,
-    userId: createdId,
-  };
-
-  await receiverUser.child('offer').push().set({ offerPayload });
-}
-
-export const activateListeners = async (userId) => {
-  const currentUserRef = participantRef.child(userId);
-
-  currentUserRef.child("offer").on("child_added", async (snapshot) => {
-    const data = snapshot.val();
-    if(data?.offerPayload) {
-      const createrId = data?.offerPayload.userId;
-      const peerConncetion = store.getState().participants[createrId].peerConnection;
-      await peerConncetion.setRemoteDescription(new RTCSessionDescription(data?.offerPayload));
-
-      await answer(createrId, userId);
-    }
-  });
-
-  currentUserRef.child("offerCandidates").on("child_added", async (snapshot) => {
-    const data = snapshot.val();
-    if(data?.userId) {
-      const peerConncetion = store.getState().participants[data?.userId].peerConnection;
-
-      peerConncetion.addIceCandidate(new RTCIceCandidate(data));
-    }
-  });
-
-  currentUserRef.child("answer").on("child_added", async (snapshot) => {
-    const data = snapshot.val();
-    if(data?.answer) {
-      const answeredId = data?.answer.userId;
-      const peerConncetion = store.getState().participants[answeredId].peerConnection;
-      await peerConncetion.setRemoteDescription(new RTCSessionDescription(data?.answer));
-    }
-  });
-
-  currentUserRef.child("answerCandidates").on("child_added", async (snapshot) => {
-    const data = snapshot.val();
-    if(data?.userId) {
-      const peerConncetion = store.getState().participants[data?.userId].peerConnection;
-      await peerConncetion.setRemoteDescription(new RTCIceCandidate(data));
-    }
-  });
-};
-
-const answer = async (otherUserId, userId) => {
-  const peerConncetion = store.getState().participants[otherUserId].peerConnection;
-  const otherParticipants = participantRef.child(otherUserId);
-  peerConncetion.onicecandidate = (event) => {
-    event.candidate &&
-      otherParticipants
-        .child("answerCandidates")
-        .push({ ...event.candidate.toJSON(), userId: userId });
-  };
-
-  const answerPc = await peerConncetion.answer();
-  await peerConncetion.setLocalDescription(answerPc);
-
-  const answer = {
-    type: answerPc.type,
-    sdp: answerPc.sdp,
-    userId: userId,
-  };
-
-  await otherParticipants.child("answers").push().set({ answer });
-};
+const participantRef = firepadRef.child("participants");
 
 export const updatePreference = (userId, preference) => {
   const currentParticipantRef = participantRef
@@ -94,4 +10,87 @@ export const updatePreference = (userId, preference) => {
   setTimeout(() => {
     currentParticipantRef.update(preference);
   });
+};
+
+export const createOffer = async (peerConnection, receiverId, createdID) => {
+  const currentParticipantRef = participantRef.child(receiverId);
+  peerConnection.onicecandidate = (event) => {
+    event.candidate &&
+      currentParticipantRef
+        .child("offerCandidates")
+        .push({ ...event.candidate.toJSON(), userId: createdID });
+  };
+
+  const offerDescription = await peerConnection.createOffer();
+  await peerConnection.setLocalDescription(offerDescription);
+
+  const offer = {
+    sdp: offerDescription.sdp,
+    type: offerDescription.type,
+    userId: createdID,
+  };
+
+  await currentParticipantRef.child("offers").push().set({ offer });
+};
+
+export const initializeListensers = async (userId) => {
+  const currentUserRef = participantRef.child(userId);
+
+  currentUserRef.child("offers").on("child_added", async (snapshot) => {
+    const data = snapshot.val();
+    if (data?.offer) {
+      const pc =
+        store.getState().participants[data.offer.userId].peerConnection;
+      await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+      await createAnswer(data.offer.userId, userId);
+    }
+  });
+
+  currentUserRef.child("offerCandidates").on("child_added", (snapshot) => {
+    const data = snapshot.val();
+    if (data.userId) {
+      const pc = store.getState().participants[data.userId].peerConnection;
+      pc.addIceCandidate(new RTCIceCandidate(data));
+    }
+  });
+
+  currentUserRef.child("answers").on("child_added", (snapshot) => {
+    const data = snapshot.val();
+    if (data?.answer) {
+      const pc =
+        store.getState().participants[data.answer.userId].peerConnection;
+      const answerDescription = new RTCSessionDescription(data.answer);
+      pc.setRemoteDescription(answerDescription);
+    }
+  });
+
+  currentUserRef.child("answerCandidates").on("child_added", (snapshot) => {
+    const data = snapshot.val();
+    if (data.userId) {
+      const pc = store.getState().participants[data.userId].peerConnection;
+      pc.addIceCandidate(new RTCIceCandidate(data));
+    }
+  });
+};
+
+const createAnswer = async (otherUserId, userId) => {
+  const pc = store.getState().participants[otherUserId].peerConnection;
+  const participantRef1 = participantRef.child(otherUserId);
+  pc.onicecandidate = (event) => {
+    event.candidate &&
+      participantRef1
+        .child("answerCandidates")
+        .push({ ...event.candidate.toJSON(), userId: userId });
+  };
+
+  const answerDescription = await pc.createAnswer();
+  await pc.setLocalDescription(answerDescription);
+
+  const answer = {
+    type: answerDescription.type,
+    sdp: answerDescription.sdp,
+    userId: userId,
+  };
+
+  await participantRef1.child("answers").push().set({ answer });
 };

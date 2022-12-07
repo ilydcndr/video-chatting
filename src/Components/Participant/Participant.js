@@ -14,8 +14,8 @@ export const Participant = (props) => {
   } = props;
   if (!currentParticipant) return <></>;
   return (
-    <div className="card">
-      <div className={`participant ${hideVideo ? "hide" : ""}`}>
+    <div className={`participant ${hideVideo ? "hide" : ""}`}>
+      <div className="card">
         <video
           ref={videoRef}
           className="video"
@@ -44,6 +44,5 @@ export const Participant = (props) => {
         </div>
       </div>
     </div>
-   
   );
 };

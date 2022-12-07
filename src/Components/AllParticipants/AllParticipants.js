@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Participant } from '../Participant/Participant';
 import "./AllParticipants.scss";
-import { useSelector } from 'react-redux';
 import { connect } from "react-redux";
 
 const AllParticipants = (props) => {
@@ -17,6 +16,7 @@ const AllParticipants = (props) => {
   const currentUser = props.currentUser
     ? Object.values(props.currentUser)[0]
     : null;
+    
 
   let gridCol =
     participantKey.length === 1 ? 1 : participantKey.length <= 4 ? 2 : 4;
@@ -26,15 +26,19 @@ const AllParticipants = (props) => {
       ? participantKey.length
       : Math.ceil(participantKey.length / 2);
 
+
   const screenPresenter = participantKey.find((element) => {
     const currentParticipant = props.participants[element];
     return currentParticipant.screen;
   });
 
+
   if (screenPresenter) {
     gridCol = 1;
     gridRowSize = 2;
   }
+
+
   const participants = participantKey.map((element, index) => {
     const currentParticipant = props.participants[element];
     const isCurrentUser = currentParticipant.currentUser;

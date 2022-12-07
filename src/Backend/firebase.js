@@ -8,9 +8,9 @@ const firebaseconfig = {
 
 firebase.initializeApp(firebaseconfig);
 
-export const fr = firebase;
+export const db = firebase;
 
-let databaseRef = firebase.database().ref();
+let firepadRef = firebase.database().ref();
 
 export const userName = prompt("What's your name?");
 
@@ -19,10 +19,10 @@ const urlParams = new URLSearchParams(window.location.search);
 const roomId = urlParams.get("id");
 
 if (roomId) {
-  databaseRef = databaseRef.child(roomId);
+  firepadRef = firepadRef.child(roomId);
 } else {
-  databaseRef = databaseRef.push();
-  window.history.replaceState(null, "video-chat", "?id=" + databaseRef.key);
+  firepadRef = firepadRef.push();
+  window.history.replaceState(null, "video-chat", "?id=" + firepadRef.key);
 }
 
-export default databaseRef;
+export default firepadRef;

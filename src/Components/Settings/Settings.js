@@ -10,12 +10,13 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import ReactTooltip from "react-tooltip";
 
-export const Settings = (props) => {
+const Settings = (props) => {
   const [streamState, setStreamState] = useState({
     mic: true,
     video: false,
     screen: false,
   });
+  
   const micClick = () => {
     setStreamState((currentState) => {
       return {
@@ -46,9 +47,11 @@ export const Settings = (props) => {
       };
     });
   };
+
   useEffect(() => {
     props.onMicClick(streamState.mic);
   }, [streamState.mic]);
+
   useEffect(() => {
     props.onVideoClick(streamState.video);
   }, [streamState.video]);
@@ -83,4 +86,6 @@ export const Settings = (props) => {
       <ReactTooltip />
     </div>
   );
-}
+};
+
+export default Settings;

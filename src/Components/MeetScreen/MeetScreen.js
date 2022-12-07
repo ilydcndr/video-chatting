@@ -1,11 +1,11 @@
 import React,{ useRef, useEffect } from 'react';
 import AllParticipants from '../AllParticipants/AllParticipants';
-import { Settings } from '../Settings/Settings';
+import  Settings  from '../Settings/Settings';
 import "./MeetScreen.scss";
 import { connect } from "react-redux";
-import { setMediaStream } from '../../redux/actions/actionCreator';
+import { setMainStream, updateUser } from '../../redux/actions/actionCreator';
 
-const MeetScreen = (props) => {
+const MainScreen = (props) => {
   const participantRef = useRef(props.participants);
 
   const onMicClick = (micEnabled) => {
@@ -72,8 +72,8 @@ const MeetScreen = (props) => {
 
     props.updateUser({ screen: true });
   };
-    return (
-      <div className="wrapper">
+  return (
+    <div className="wrapper">
       <div className="main-screen">
         <AllParticipants />
       </div>
@@ -86,22 +86,22 @@ const MeetScreen = (props) => {
         />
       </div>
     </div>
-    );
-  };
-  
-  const mapStateToProps = (state) => {
-    return {
-      stream: state.mainStream,
-      participants: state.participants,
-      currentUser: state.currentUser,
-    };
-  };
-  
-  const mapDispatchToProps = (dispatch) => {
-    return {
-      setsetMediaStream: (stream) => dispatch(setMediaStream(stream)),
-    };
-  };
-  
+  );
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)(MeetScreen);
+const mapStateToProps = (state) => {
+  return {
+    stream: state.mainStream,
+    participants: state.participants,
+    currentUser: state.currentUser,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    setMainStream: (stream) => dispatch(setMainStream(stream)),
+    updateUser: (user) => dispatch(updateUser(user)),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(MainScreen);
